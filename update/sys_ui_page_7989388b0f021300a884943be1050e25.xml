@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<record_update table="sys_ui_page">
+    <sys_ui_page action="INSERT_OR_UPDATE">
+        <category>general</category>
+        <client_script><![CDATA[function okButton(){
+   //Gets called if the 'OK' dialog button is clicked
+   //Make sure signature entered
+   if (signed_name.length > 3){
+	return true;
+   //g_form.setValue('myvar', true); //Optionally set the value of a variable or field indicating acceptance
+   }
+   else {
+	//If terms are false stop submission
+      alert('Please enter your name to acknowledge acceptance of the policy document.');
+      return false;
+   }
+}
+
+function cancelButton(){
+  window.location = 'catalog_home.do?sysparm_view=catalog_default'; //Redirect to catalog homepage	
+}
+]]></client_script>
+        <description/>
+        <direct>false</direct>
+        <endpoint>x_8946_useronboard_declaration_accept_signature.do</endpoint>
+        <html><![CDATA[<?xml version="1.0" encoding="utf-8" ?>
+<j:jelly trim="false" xmlns:j="jelly:core" xmlns:g="glide" xmlns:j2="null" xmlns:g2="null">
+	<j:if test="$[jvar_isMSIE8 || jvar_isMSIE7]">
+		<g:requires name="scripts/flashcanvas.jsx" includes="true"/>
+	</j:if>
+	<g:requires name="scripts/jquery.signaturepad.min.jsx" includes="true" />
+	<g:requires name="scripts/signature_pad.jsx" includes="true" />
+	<g:requires name="scripts/json2.jsx" includes="true" />
+	<g:requires name="styles/jquery.signaturepad.cssx" includes="true" />
+	<g:requires name="styles/heisenberg/heisenberg_all.cssx" includes="true" />
+	<g:requires name="scripts/classes/ajax/GlideAjax.jsx" includes="true" />
+	
+
+	<j:set var="jvar_task" value="397372650f201300a884943be1050e38" />
+	<j:set var="jvar_caller" value="2428c7f0eb32010045e1a5115206feb8" />
+	
+		<j:set var="jvar_email" value="${RP.getParameterValue('sysparm_email')}" />
+	<g:evaluate var="jvar_task_number">
+
+		// Produce a message at the top of the page with task details
+		// gs.flushMessages();
+					// set var="jvar_task" value="${RP.getParameterValue('sysparm_task')}" /> 
+		// set var="jvar_caller" value="${RP.getParameterValue('sysparm_caller')}" />
+		var task_number = '';
+		var taskGR = new GlideRecord("task");
+		taskGR.addQuery('sys_id', '${jvar_task}');
+		taskGR.query();
+		if (taskGR.next()) {
+		  task_number = taskGR.number;	
+		  var msg = gs.getMessage('This declaration regards ' + task_number + ' opened on ' + taskGR.opened_at + ' by ' + taskGR.opened_by.getDisplayValue() + '.  A short description of the request: ' + taskGR.short_description);
+		  gs.addInfoMessage(msg);
+		}	
+		else {
+		  var msg = gs.getMessage('Task number not found');
+		  gs.addInfoMessage(msg);
+		}
+		task_number;
+	</g:evaluate>
+	
+	<g:ui_form>
+		<input type="hidden" id="sysparm_retrieve_signature" value="$[gs.getProperty('com.snc.signaturepad.retrieveSignature')]" />
+		<input type="hidden" id="sysparm_draw_only" value="$[sysparm_draw_only]" />
+		<input type="hidden" id="document_id" name="document_id" value="${sysparm_document_id}"></input>
+		<input type="hidden" id="signature_redirect_url" name="signature_redirect_url" value="$[sysparm_redirect_url]"/>
+		<input type="hidden" id="table_name" name="table_name" value="${sysparm_table_name}"></input>
+		<input type="hidden" id="targetTask" name="targetTask" value="${jvar_task}" />
+		<input type="hidden" id="targetUser" name="targetUser" value="${jvar_caller}" />
+		<input type="hidden" id="targetEmail" name="targetEmail" value="${jvar_email}" />
+		
+		
+		<div>  
+<img src="snc-logo-reverse.png" height="64px"></img>  
+</div> 
+			
+		
+		<div class="sigPad">
+			<p>
+			'Declaration to be signed by all users:'
+				
+				<br>
+				'I have read and understood the document '$[SP]
+				<a href ="http://www.example.com/security/policies/info.html"> Information Resources Policy</a>
+					$[SP]
+					'.  I agree to follow the policy or quit.'</br>
+				
+			</p>
+			
+			<div class="typeItDesc">					
+					<label for="name">'Type your name: '</label>$[SP]
+					<input type="text" aria-label="Type your name here to acknowledge or sign the document" name="signed_name" id="signed_name" class="signed_name" maxlength="50" required="true"/>
+				<p><br>
+				<label for="date">'Date: '</label>$[SP]
+				<input type="date" aria-label="Date " name="signed_date" id="signed_date" class="signed_date" maxlength="25" required="true"/>
+					</br>
+				</p>
+				</div>
+				
+			
+			<p/>
+			<br>
+			'Filling in the above information will constitute your eSignature and will have the same legal impact as signing a printed version of this document.'
+			</br>
+			<div style="float:left">
+				<g:dialog_buttons_ok_cancel ok="return true" cancel="return cancelButton()"/>
+				
+				<input type="hidden" id="btn_clicked" name="btn_clicked" value="ok"></input>
+			</div>
+		</div>
+		
+	</g:ui_form>
+</j:jelly>]]></html>
+        <name>declaration_accept_signature</name>
+        <processing_script><![CDATA[if (btn_clicked == 'ok') {
+	//	gs.info('declaration_accept_signature-0: btn_clicked == ok');
+	var comments = '';
+	if (targetTask) {
+		gs.log('declaration_accept_signature-1: targetTask=' + targetTask);
+		var gr = new GlideRecord('sc_req_item');
+		gr.addQuery('sys_id', targetTask);
+		gr.query();
+		if (gr.next()) {
+			gs.info('declaration_accept_signature-2: ' + targetTask + '- name: ' + signed_name + ' date: ' + signed_date);
+			comments += 'Declaration to be signed by all users:\n';
+			comments += 'I have read and understood the document, I agree to abide by these policies or immediately cease using company resources.\n';
+			comments += gr.getDisplayValue() + ' digitally signed by ' + signed_name + ' at email address ';
+			var str = '';
+			if (targetUser) {
+				gs.info('declaration_accept_signature-3: ' + targetTask + '- targetUser=' + targetUser);
+				var su = new GlideRecord("sys_user");
+				su.addQuery("sys_id", targetUser);
+				su.query();
+				if (su.next()) {
+					str = su.email;
+					gs.info('declaration_accept_signature-4: ' + targetTask + '- str=su.email=' + str);
+				}
+			}
+			else if (targetEmail) {
+				str = targetEmail;
+				gs.info('declaration_accept_signature-5: ' + targetTask + '- str=targetEmail=' + str);
+			}
+			comments += str + ' on ' + signed_date + '.  ';
+			gs.info('declaration_accept_signature-6: ' + targetTask + '- comments=' + comments);
+			gr.comments = comments;
+			gr.variables.user_acceptance_confirmation = true;
+			gr.update();
+		}
+		
+	}
+	var instance = gs.getProperty('instance_name');
+	var url = "https://" + instance + ".service-now.com/acknowledge_declaration_thanks.do";	
+	var signature_redirect_url = url;
+	if (signature_redirect_url)
+		response.sendRedirect(signature_redirect_url);
+	else
+		response.sendRedirect(gs.getSession().getStack().bottom());
+	
+	gs.addInfoMessage('Your signature has been accepted.  Thank you.');
+}
+if (btn_clicked == 'cancel' ) {
+	gs.addInfoMessage('The signature has been canceled');
+	current.setAbortAction(true);
+}
+]]></processing_script>
+        <sys_class_name>sys_ui_page</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2018-05-17 20:28:27</sys_created_on>
+        <sys_id>7989388b0f021300a884943be1050e25</sys_id>
+        <sys_mod_count>4</sys_mod_count>
+        <sys_name>declaration_accept_signature</sys_name>
+        <sys_package display_value="User Onboarding" source="x_8946_useronboard">992e24430f021300a884943be1050e52</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="User Onboarding">992e24430f021300a884943be1050e52</sys_scope>
+        <sys_update_name>sys_ui_page_7989388b0f021300a884943be1050e25</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2018-05-17 20:37:35</sys_updated_on>
+    </sys_ui_page>
+</record_update>

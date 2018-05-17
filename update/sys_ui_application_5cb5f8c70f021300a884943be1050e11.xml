@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<record_update sys_domain="global" table="sys_ui_application">
+    <sys_ui_application action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <hint/>
+        <name>Service Desk</name>
+        <order/>
+        <roles>itil</roles>
+        <sys_class_name>sys_ui_application</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2018-05-17 20:06:56</sys_created_on>
+        <sys_domain>global</sys_domain>
+        <sys_domain_path>/</sys_domain_path>
+        <sys_id>5cb5f8c70f021300a884943be1050e11</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>Service Desk</sys_name>
+        <sys_overrides/>
+        <sys_package display_value="User Onboarding" source="x_8946_useronboard">992e24430f021300a884943be1050e52</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="User Onboarding">992e24430f021300a884943be1050e52</sys_scope>
+        <sys_update_name>sys_ui_application_5cb5f8c70f021300a884943be1050e11</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2018-05-17 20:06:56</sys_updated_on>
+    </sys_ui_application>
+</record_update>
